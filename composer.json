@@ -1,1 +1,56 @@
-{"name":"aisdk/black-forest-labs","description":"Official Black Forest Labs provider for the PHP AI SDK.","license":"MIT","keywords":["ai","aisdk","flux","black-forest-labs","image-generation"],"homepage":"https://github.com/phpaisdk/black-forest-labs","support":{"issues":"https://github.com/phpaisdk/black-forest-labs/issues","source":"https://github.com/phpaisdk/black-forest-labs"},"require":{"php":"^8.3","aisdk/core":"^0.8.0"},"require-dev":{"laravel/pint":"^1.18","nyholm/psr7":"^1.8","pestphp/pest":"^3.0 || ^4.0","phpstan/phpstan":"^2.0"},"autoload":{"psr-4":{"AiSdk\\":"src/Root/","AiSdk\\BlackForestLabs\\":"src/"}},"autoload-dev":{"psr-4":{"AiSdk\\BlackForestLabs\\Tests\\":"tests/"}},"scripts":{"lint":"vendor/bin/pint --test","format":"vendor/bin/pint","analyze":"vendor/bin/phpstan analyze --memory-limit=512M","test":"vendor/bin/pest","test:all":["@lint","@analyze","@test"]},"config":{"sort-packages":true,"allow-plugins":{"pestphp/pest-plugin":true,"php-http/discovery":true}}}
+{
+    "name": "aisdk/black-forest-labs",
+    "description": "Official Black Forest Labs provider for the PHP AI SDK.",
+    "license": "MIT",
+    "keywords": [
+        "ai",
+        "aisdk",
+        "flux",
+        "black-forest-labs",
+        "image-generation"
+    ],
+    "homepage": "https://github.com/phpaisdk/black-forest-labs",
+    "support": {
+        "issues": "https://github.com/phpaisdk/black-forest-labs/issues",
+        "source": "https://github.com/phpaisdk/black-forest-labs"
+    },
+    "require": {
+        "php": "^8.3",
+        "aisdk/core": "^0.10.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.18",
+        "nyholm/psr7": "^1.8",
+        "pestphp/pest": "^3.0 || ^4.0",
+        "phpstan/phpstan": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AiSdk\\": "src/Root/",
+            "AiSdk\\BlackForestLabs\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AiSdk\\BlackForestLabs\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "lint": "vendor/bin/pint --test",
+        "format": "vendor/bin/pint",
+        "analyze": "vendor/bin/phpstan analyze --memory-limit=512M",
+        "test": "vendor/bin/pest",
+        "test:all": [
+            "@lint",
+            "@analyze",
+            "@test"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    }
+}
