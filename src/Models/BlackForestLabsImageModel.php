@@ -15,6 +15,10 @@ use AiSdk\Utils\Support\Url;
 
 final class BlackForestLabsImageModel extends BaseModel implements ImageModelInterface
 {
+    // BFL global requests can return regional polling URLs:
+    // https://docs.bfl.ai/quick_start/generating_images
+    private const POLLING_ORIGINS = ['https://api.bfl.ai', 'https://api.us1.bfl.ai', 'https://api.eu1.bfl.ai'];
+
     public function __construct(private readonly string $modelId, private readonly BlackForestLabsOptions $options) {} public function provider(): string
     {
         return BlackForestLabsOptions::PROVIDER_NAME;
@@ -37,7 +41,9 @@ final class BlackForestLabsImageModel extends BaseModel implements ImageModelInt
         $id = (string) ($submitted['id'] ?? '');
         if ($pollingUrl === '' || $id === '') {
             throw new InvalidResponseException('Black Forest Labs response missing id or polling_url.');
-        } do {
+        }
+        $this->assertFollowUpOrigin($pollingUrl, $this->options->baseUrl);
+        do {
             if ($this->options->pollingIntervalMs > 0) {
                 usleep($this->options->pollingIntervalMs * 1000);
             } $result = $this->runner($this->options->sdk)->getJson($pollingUrl, $this->options->authHeaders(), $this->provider());
@@ -48,5 +54,38 @@ final class BlackForestLabsImageModel extends BaseModel implements ImageModelInt
         if ($sample === '') {
             throw new InvalidResponseException('Black Forest Labs result missing sample URL.');
         } return new ImageResponse([new ImageData(url: $sample, mimeType: (string) ($body['output_format'] ?? 'image/jpeg'))], rawResponse: $result, providerMetadata: ['blackforestlabs' => ['id' => $id]]);
+    }
+
+    private function assertFollowUpOrigin(string $url, string $baseUrl): void
+    {
+        $origin = static function (string $value): ?string {
+            if (preg_match('/[\x00-\x20\x7f\\\\]/', $value) === 1) {
+                return null;
+            }
+            $parts = parse_url($value);
+            if ($parts === false || ! isset($parts['scheme'], $parts['host'])
+                || isset($parts['user']) || isset($parts['pass'])) {
+                return null;
+            }
+            $scheme = strtolower($parts['scheme']);
+            if (! in_array($scheme, ['http', 'https'], true) || ($parts['port'] ?? 1) < 1) {
+                return null;
+            }
+
+            return $scheme . '://' . strtolower($parts['host']) . ':' . ($parts['port'] ?? ($scheme === 'https' ? 443 : 80));
+        };
+        $actual = $origin($url);
+        $expected = $origin($baseUrl);
+        if ($actual !== null && $expected !== null && $actual === $expected) {
+            return;
+        }
+
+        $allowedOrigins = array_map($origin, self::POLLING_ORIGINS);
+        if ($actual !== null && $expected !== null
+            && in_array($expected, $allowedOrigins, true) && in_array($actual, $allowedOrigins, true)) {
+            return;
+        }
+
+        throw new InvalidResponseException('Provider follow-up URL has an untrusted origin.');
     }
 }

@@ -2,6 +2,11 @@
 
 Notable changes to `aisdk/black-forest-labs`. Release notes are also published at https://github.com/phpaisdk/black-forest-labs/releases.
 
+## Unreleased (v0.10.2)
+
+- Reject untrusted polling origins before sending API credentials.
+- Requires `aisdk/core ^0.10.2` at release.
+
 ## v0.10.1 — 2026-10-29
 
 - Raise SDK exceptions instead of native PHP ones.
