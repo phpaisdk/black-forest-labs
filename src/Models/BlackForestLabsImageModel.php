@@ -7,6 +7,7 @@ namespace AiSdk\BlackForestLabs\Models;
 use AiSdk\BlackForestLabs\BlackForestLabsOptions;
 use AiSdk\Contracts\BaseModel;
 use AiSdk\Contracts\ImageModelInterface;
+use AiSdk\Exceptions\InvalidResponseException;
 use AiSdk\Requests\ImageRequest;
 use AiSdk\Responses\ImageResponse;
 use AiSdk\Results\ImageData;
@@ -35,17 +36,17 @@ final class BlackForestLabsImageModel extends BaseModel implements ImageModelInt
         $pollingUrl = (string) ($submitted['polling_url'] ?? '');
         $id = (string) ($submitted['id'] ?? '');
         if ($pollingUrl === '' || $id === '') {
-            throw new \RuntimeException('Black Forest Labs response missing id or polling_url.');
+            throw new InvalidResponseException('Black Forest Labs response missing id or polling_url.');
         } do {
             if ($this->options->pollingIntervalMs > 0) {
                 usleep($this->options->pollingIntervalMs * 1000);
             } $result = $this->runner($this->options->sdk)->getJson($pollingUrl, $this->options->authHeaders(), $this->provider());
         } while (in_array($result['status'] ?? '', ['Pending', 'Processing'], true));
         if (($result['status'] ?? '') !== 'Ready') {
-            throw new \RuntimeException('Black Forest Labs generation failed.');
+            throw new InvalidResponseException('Black Forest Labs generation failed.');
         } $sample = (string) ($result['result']['sample'] ?? '');
         if ($sample === '') {
-            throw new \RuntimeException('Black Forest Labs result missing sample URL.');
+            throw new InvalidResponseException('Black Forest Labs result missing sample URL.');
         } return new ImageResponse([new ImageData(url: $sample, mimeType: (string) ($body['output_format'] ?? 'image/jpeg'))], rawResponse: $result, providerMetadata: ['blackforestlabs' => ['id' => $id]]);
     }
 }
